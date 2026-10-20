@@ -1,0 +1,12 @@
+{
+  "name": "noor-academy-demo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.cjs",
+    "test": "node tests/smoke.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.58.2"
+  }
+}

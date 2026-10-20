@@ -1,7 +1,7 @@
 name: Deploy Noor Academy
 on:
   push:
-    branches: [main, work]
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -11,16 +11,42 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Test the published project path
+        run: |
+          mkdir -p /tmp/noor-site/Greetings
+          cp -a public/. /tmp/noor-site/Greetings/
+          python3 -m http.server 8000 --bind 127.0.0.1 --directory /tmp/noor-site &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8000/Greetings/ > /dev/null; then break; fi
+            sleep 1
+          done
+          npm test
+        env:
+          TEST_BASE_URL: http://127.0.0.1:8000/Greetings/
+          PLAYWRIGHT_BUNDLED_CHROMIUM: '1'
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: public
   deploy:
+    needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: public
       - uses: actions/deploy-pages@v4
         id: deployment

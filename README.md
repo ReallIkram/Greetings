@@ -21,3 +21,7 @@ The GitHub Actions workflow uploads only `public/` to GitHub Pages. In repositor
 This demo does not provide secure authentication, server-enforced roles, child-parent access isolation, shared database records, uploads, push/email delivery, verified call tracking, or Android/iOS builds. These require a separate implementation and configured services. Role preview is not authorization. Directory entries are not user accounts.
 
 For the requested Flutter/Firebase implementation, create a Firebase project with web/Android/iOS app registrations, Auth, Firestore and Storage. Enforce tenant and parent-child permissions in server-side security rules; create user roles through privileged server code. Add provider-verified call events, Cloud Functions for feedback notifications, FCM consent/token registration, and SendGrid credentials stored only in backend secrets. Never place privileged credentials in GitHub Pages assets. Jitsi may serve the call proof of concept; test moderation and privacy before real classes. Deploy and test rules and multi-user access controls before entering personal data.
+
+## Validation
+
+With Playwright installed, run `node tests/smoke.cjs` while the local HTTP server is running. The test uses `/usr/bin/chromium`; override with `CHROMIUM_PATH` when needed. It exercises scheduling, teacher-to-parent feedback, timed attendance, persisted records, mobile overflow, and Quran response rendering using a mocked API response. Live Quran API connectivity and live video calls are separate manual checks.
